@@ -129,6 +129,8 @@ fun WebViewScreen(
                                 style.textContent = `
                                     .nav-button.only-icon.updates-button { display: none !important; }
                                     .panel-button-left-container { display: none !important; }
+                                    .extend-jules-section { display: none !important; }
+                                    .footer { display: none !important; }
                                     .panel-button-right-container { 
                                         display: flex !important; 
                                         width: 100% !important; 
