@@ -139,6 +139,7 @@ fun WebViewScreen(
                                     const style = document.createElement('style');
                                     style.id = 'jules-mobile-styles';
                                     style.textContent = `
+                                        * { -webkit-tap-highlight-color: transparent !important; }
                                         .nav-button.only-icon.updates-button { display: none !important; }
                                         .panel-button-left-container { display: none !important; }
                                         .extend-jules-section { display: none !important; }
@@ -148,10 +149,10 @@ fun WebViewScreen(
                                             display: flex !important; 
                                             width: 100% !important; 
                                             align-items: center !important; 
+                                            padding-left: 10px !important;
                                         }
                                         swebot-custom-dropdown { 
                                             margin-right: auto !important;
-                                            margin-left: 10px !important;
                                         }
                                     `;
                                     document.head.append(style);
