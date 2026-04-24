@@ -1,6 +1,9 @@
 name: Build and Release APK
 
 on:
+  push:
+    tags:
+      - 'v*'
   workflow_dispatch:
 
 jobs:
@@ -33,8 +36,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          VERSION_TAG="v$(date +'%Y%m%d-%H%M%S')"
+          # Use the tag name if triggered by push, otherwise use a timestamp
+          if [ "${{ github.event_name }}" == "push" ]; then
+            VERSION_TAG="${{ github.ref_name }}"
+          else
+            VERSION_TAG="manual-$(date +'%Y%m%d-%H%M%S')"
+          fi
+          
           gh release create "$VERSION_TAG" \
             Jules.apk \
             --title "Release $VERSION_TAG" \
-            --notes "Manual release build generated on $(date +'%Y-%m-%d %H:%M:%S')"
+            --notes "Automated release build for $VERSION_TAG"
