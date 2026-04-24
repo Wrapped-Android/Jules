@@ -1,0 +1,35 @@
+# Jules Android Wrapper 🐙
+
+A polished, semi-native Android application that wraps the [Jules](https://jules.google.com) website into a high-performance, full-screen mobile experience.
+
+## ✨ Key Features
+
+- **Full-Screen Immersion**: True edge-to-edge display using Android's `enableEdgeToEdge`, respecting system insets for a native look.
+- **Native Gestures**: Bidirectional swipe detection (right to open, left to close) to control the web sidebar seamlessly.
+- **Session Persistence**: Robust cookie synchronization ensures you stay logged in permanently.
+- **Theme Synchronization**: The app's appearance (Light/Dark mode) automatically follows your Android system settings in real-time.
+- **UI Optimization**:
+    - Removed redundant web elements (logo, update buttons, footers) for a cleaner mobile view.
+    - Refined navbar layout with optimized spacing and alignment.
+    - Removed the "web-like" blue tap highlight for a more immediate, native feel.
+- **Custom Branding**: Modern adaptive icon featuring the octopus logo on a professional dark-gray background.
+
+## 🚀 Automated Builds
+
+This project uses **GitHub Actions** to automate the generation of installable APKs.
+
+1. Go to the **Actions** tab on the GitHub repository.
+2. Select the **"Build and Release APK"** workflow.
+3. Click **"Run workflow"**.
+4. Once finished, download the latest `Jules.apk` from the **Releases** section.
+
+## 🛠️ Technical Implementation
+
+- **Language**: Kotlin (Jetpack Compose)
+- **Engine**: Android WebView with custom JavaScript/CSS injection.
+- **Bridge**: Real-time communication between Android system theme and web interface.
+- **CI/CD**: Automated release workflow with timestamped versions.
+
+## 📄 License
+
+This project is a wrapper for a Google-owned service. Ensure compliance with their Terms of Service when using this application.
