@@ -16,6 +16,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,6 +25,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,7 +48,8 @@ class MainActivity : ComponentActivity() {
         WebView.setWebContentsDebuggingEnabled(true)
         
         setContent {
-            JulesTheme {
+            val isDarkTheme = isSystemInDarkTheme()
+            JulesTheme(darkTheme = isDarkTheme) {
                 var webView by remember { mutableStateOf<WebView?>(null) }
                 var canGoBack by remember { mutableStateOf(false) }
                 var progress by remember { mutableStateOf(0) }
@@ -63,6 +66,7 @@ class MainActivity : ComponentActivity() {
                     ) {
                         WebViewScreen(
                             url = "https://jules.google.com/session",
+                            isDarkTheme = isDarkTheme,
                             modifier = Modifier.fillMaxSize(),
                             onWebViewCreated = { webView = it },
                             onProgressChanged = { progress = it },
@@ -89,11 +93,18 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun WebViewScreen(
     url: String,
+    isDarkTheme: Boolean,
     modifier: Modifier = Modifier,
     onWebViewCreated: (WebView) -> Unit,
     onProgressChanged: (Int) -> Unit,
     onCanGoBackChanged: (Boolean) -> Unit
 ) {
+    var webViewInstance by remember { mutableStateOf<WebView?>(null) }
+
+    LaunchedEffect(isDarkTheme, webViewInstance) {
+        webViewInstance?.evaluateJavascript("if (window.syncTheme) window.syncTheme($isDarkTheme);", null)
+    }
+
     AndroidView(
         factory = { context ->
             WebView(context).apply {
@@ -124,24 +135,48 @@ fun WebViewScreen(
 
                         view?.evaluateJavascript("""
                             (function() {
-                                // Hide superfluous elements and fix spacing
-                                const style = document.createElement('style');
-                                style.textContent = `
-                                    .nav-button.only-icon.updates-button { display: none !important; }
-                                    .panel-button-left-container { display: none !important; }
-                                    .extend-jules-section { display: none !important; }
-                                    .footer { display: none !important; }
-                                    .panel-button-right-container { 
-                                        display: flex !important; 
-                                        width: 100% !important; 
-                                        align-items: center !important; 
+                                if (!document.getElementById('jules-mobile-styles')) {
+                                    const style = document.createElement('style');
+                                    style.id = 'jules-mobile-styles';
+                                    style.textContent = `
+                                        .nav-button.only-icon.updates-button { display: none !important; }
+                                        .panel-button-left-container { display: none !important; }
+                                        .extend-jules-section { display: none !important; }
+                                        .footer { display: none !important; }
+                                        .ui-color-mode { display: none !important; }
+                                        .panel-button-right-container { 
+                                            display: flex !important; 
+                                            width: 100% !important; 
+                                            align-items: center !important; 
+                                        }
+                                        swebot-custom-dropdown { 
+                                            margin-right: auto !important;
+                                            margin-left: 10px !important;
+                                        }
+                                    `;
+                                    document.head.append(style);
+                                }
+
+                                window.syncTheme = function(isDark) {
+                                    const btn = document.querySelector('.ui-color-mode');
+                                    if (!btn) {
+                                        setTimeout(() => window.syncTheme(isDark), 500);
+                                        return;
                                     }
-                                    swebot-custom-dropdown { 
-                                        margin-right: auto !important;
-                                        margin-left: 10px !important;
+                                    const icon = btn.querySelector('mat-icon');
+                                    if (!icon) return;
+                                    const iconText = icon.textContent.trim();
+                                    const isSiteDark = (iconText === 'light_mode'); 
+                                    const isDarkByClass = document.body.classList.contains('dark-theme') || 
+                                                         document.documentElement.classList.contains('dark');
+                                    const actuallyDark = isSiteDark || isDarkByClass;
+                                    
+                                    if (isDark !== actuallyDark) {
+                                        btn.click();
                                     }
-                                `;
-                                document.head.append(style);
+                                };
+                                
+                                window.syncTheme($isDarkTheme);
 
                                 if (window.JulesSwipeInitialized) return;
                                 window.JulesSwipeInitialized = true;
@@ -158,21 +193,16 @@ fun WebViewScreen(
                                 window.addEventListener('touchend', function(e) {
                                     let now = Date.now();
                                     if (now - lastActionTime < 500) return;
-
                                     let endX = e.changedTouches[0].clientX;
                                     let endY = e.changedTouches[0].clientY;
-                                    
                                     let dx = endX - startX;
                                     let dy = Math.abs(endY - startY);
                                     
                                     if (Math.abs(dx) > 80 && dy < 100) {
                                         let panel = document.getElementById('start-panel');
                                         let btn = document.querySelector('button.start-panel-button.is-left');
-                                        
                                         if (!btn) return;
-
                                         let isClosed = !panel || panel.classList.contains('closed');
-                                        
                                         if (dx > 0 && isClosed) {
                                             btn.click();
                                             lastActionTime = now;
@@ -216,6 +246,7 @@ fun WebViewScreen(
                 }
                 
                 onWebViewCreated(this)
+                webViewInstance = this
                 setBackgroundColor(0)
                 loadUrl(url)
             }
