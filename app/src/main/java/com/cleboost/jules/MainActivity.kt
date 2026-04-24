@@ -124,6 +124,23 @@ fun WebViewScreen(
 
                         view?.evaluateJavascript("""
                             (function() {
+                                // Hide superfluous elements and fix spacing
+                                const style = document.createElement('style');
+                                style.textContent = `
+                                    .nav-button.only-icon.updates-button { display: none !important; }
+                                    .panel-button-left-container { display: none !important; }
+                                    .panel-button-right-container { 
+                                        display: flex !important; 
+                                        width: 100% !important; 
+                                        align-items: center !important; 
+                                    }
+                                    swebot-custom-dropdown { 
+                                        margin-right: auto !important;
+                                        margin-left: 10px !important;
+                                    }
+                                `;
+                                document.head.append(style);
+
                                 if (window.JulesSwipeInitialized) return;
                                 window.JulesSwipeInitialized = true;
                                 
