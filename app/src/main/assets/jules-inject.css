@@ -58,6 +58,12 @@ swebot-task-view .user-chat-bubble .message-container * {
     color: white !important;
 }
 
+/* Fix weird spacing in user messages (paragraph margins) */
+swebot-task-view swebot-user-chat-bubble swebot-markdown-viewer p {
+    margin-top: 0 !important;
+    margin-block-start: 0 !important;
+}
+
 /* Hide the expand button in user chat bubbles */
 swebot-task-view swebot-user-chat-bubble .expand-button {
     display: none !important;
