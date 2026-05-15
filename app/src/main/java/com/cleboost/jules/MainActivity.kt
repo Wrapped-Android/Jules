@@ -1,7 +1,6 @@
 package com.cleboost.jules
 
 import android.content.Context
-import android.net.http.SslError
 import android.os.Bundle
 import android.util.Base64
 import android.util.Log
