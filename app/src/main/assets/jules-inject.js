@@ -1,5 +1,15 @@
 (function() {
+    const sanitizeCriticCards = function() {
+        const titles = document.querySelectorAll('swebot-critic-card .title');
+        titles.forEach(title => {
+            if (title.textContent.includes('Running code review ...')) {
+                title.textContent = title.textContent.replace('Running code review ...', 'Running code review');
+            }
+        });
+    };
+
     window.syncTheme = function(isDark) {
+        sanitizeCriticCards();
         const btn = document.querySelector('.ui-color-mode');
         if (!btn) {
             setTimeout(() => window.syncTheme(isDark), 500);
@@ -52,4 +62,7 @@
             }
         }
     }, {passive: true, capture: true});
+
+    // Handle dynamic updates since it's a SPA
+    setInterval(sanitizeCriticCards, 1000);
 })();
