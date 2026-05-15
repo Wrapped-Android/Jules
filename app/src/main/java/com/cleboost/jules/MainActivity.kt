@@ -157,6 +157,9 @@ fun WebViewScreen(
                                         swebot-custom-dropdown { 
                                             margin-right: auto !important;
                                         }
+                                        #start-panel swebot-start-panel > div:nth-child(4) > div:nth-child(2) {
+                                            display: none !important;
+                                        }
                                     `;
                                     document.head.append(style);
                                 }
