@@ -20,7 +20,6 @@ swebot-custom-dropdown {
 }
 
 /* --- Chat Specific (Tasks/Code) --- */
-/* We target selectors that only exist when a chat is active */
 swebot-task-view .chat-history .jules-logo-wrapper {
     display: none !important;
 }
@@ -40,15 +39,30 @@ swebot-task-view .chat-history {
 
 swebot-task-view swebot-user-chat-bubble, 
 swebot-task-view .user-chat-bubble, 
-swebot-task-view swebot-markdown-viewer, 
 swebot-task-view .message-container {
     width: 100% !important;
     max-width: 100% !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
 }
 
-/* Hide specific chat element inside swebot-task-view */
+swebot-task-view .user-chat-bubble .message-container {
+    background-color: #6200EE !important;
+    color: white !important;
+    border-radius: 12px !important;
+    padding: 12px !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+swebot-task-view .user-chat-bubble .message-container * {
+    color: white !important;
+}
+
+/* Hide the expand button in user chat bubbles */
+swebot-task-view swebot-user-chat-bubble .expand-button {
+    display: none !important;
+}
+
 swebot-task-view swebot-chat > div:nth-child(2) > div > div {
     display: none !important;
 }
