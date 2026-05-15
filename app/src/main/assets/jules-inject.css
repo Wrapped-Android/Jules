@@ -18,3 +18,28 @@ swebot-custom-dropdown {
 #start-panel swebot-start-panel > div:nth-child(4) > div:nth-child(2) {
     display: none !important;
 }
+
+/* Chat Centering Fix */
+.chat-history .jules-logo-wrapper {
+    display: none !important;
+}
+.chat-content, .chat-history {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
+}
+
+/* Ensure bubbles themselves are balanced and have breathing room */
+swebot-user-chat-bubble, .user-chat-bubble, swebot-markdown-viewer, .message-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
