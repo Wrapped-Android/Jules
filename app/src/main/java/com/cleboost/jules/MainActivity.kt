@@ -140,6 +140,8 @@ fun WebViewScreen(
                                     style.id = 'jules-mobile-styles';
                                     style.textContent = `
                                         * { -webkit-tap-highlight-color: transparent !important; }
+                                        *:focus { outline: none !important; }
+                                        *:active { outline: none !important; }
                                         .nav-button.only-icon.updates-button { display: none !important; }
                                         .panel-button-left-container { display: none !important; }
                                         .extend-jules-section { display: none !important; }
