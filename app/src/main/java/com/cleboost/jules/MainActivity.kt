@@ -3,6 +3,7 @@ package com.cleboost.jules
 import android.net.http.SslError
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.webkit.ConsoleMessage
 import android.webkit.CookieManager
 import android.webkit.SslErrorHandler
@@ -250,6 +251,7 @@ fun WebViewScreen(
                 
                 onWebViewCreated(this)
                 webViewInstance = this
+                overScrollMode = View.OVER_SCROLL_NEVER
                 setBackgroundColor(0)
                 loadUrl(url)
             }
