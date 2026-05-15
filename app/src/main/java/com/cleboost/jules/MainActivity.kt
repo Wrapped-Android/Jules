@@ -1,6 +1,7 @@
 package com.cleboost.jules
 
 import android.content.Context
+import android.net.http.SslError
 import android.os.Bundle
 import android.util.Base64
 import android.util.Log
@@ -135,12 +136,14 @@ fun WebViewScreen(
                         onCanGoBackChanged(view?.canGoBack() == true)
                         CookieManager.getInstance().flush()
                         
-                        injectAssets(context, view)
+                        injectBaseAssets(context, view)
+                        handleConditionalInjection(context, view, url)
                     }
                     
                     override fun doUpdateVisitedHistory(view: WebView?, url: String?, isReload: Boolean) {
                         super.doUpdateVisitedHistory(view, url, isReload)
                         onCanGoBackChanged(view?.canGoBack() == true)
+                        handleConditionalInjection(context, view, url)
                     }
 
                     @Deprecated("Deprecated in Java")
@@ -178,7 +181,7 @@ fun WebViewScreen(
     )
 }
 
-private fun injectAssets(context: Context, webView: WebView?) {
+private fun injectBaseAssets(context: Context, webView: WebView?) {
     try {
         val css = context.assets.open("jules-inject.css").bufferedReader().use { it.readText() }
         val js = context.assets.open("jules-inject.js").bufferedReader().use { it.readText() }
@@ -200,7 +203,37 @@ private fun injectAssets(context: Context, webView: WebView?) {
         
         webView?.evaluateJavascript(injectionJs, null)
     } catch (e: Exception) {
-        Log.e("Jules", "Error injecting assets", e)
+        Log.e("Jules", "Error injecting base assets", e)
+    }
+}
+
+private fun handleConditionalInjection(context: Context, webView: WebView?, url: String?) {
+    if (url == null) return
+    
+    val isTaskPage = url.contains("/session/") && (url.contains("/code/") || url.contains("/task/"))
+    val styleId = "jules-task-page-styles"
+    
+    if (isTaskPage) {
+        try {
+            val css = context.assets.open("jules-task-page.css").bufferedReader().use { it.readText() }
+            val encodedCss = Base64.encodeToString(css.toByteArray(), Base64.NO_WRAP)
+            val js = """
+                (function() {
+                    if (!document.getElementById('$styleId')) {
+                        const style = document.createElement('style');
+                        style.id = '$styleId';
+                        style.textContent = atob('$encodedCss');
+                        document.head.append(style);
+                    }
+                })();
+            """.trimIndent()
+            webView?.evaluateJavascript(js, null)
+        } catch (e: Exception) {
+            Log.e("Jules", "Error injecting task page CSS", e)
+        }
+    } else {
+        val js = "if (document.getElementById('$styleId')) document.getElementById('$styleId').remove();"
+        webView?.evaluateJavascript(js, null)
     }
 }
 
