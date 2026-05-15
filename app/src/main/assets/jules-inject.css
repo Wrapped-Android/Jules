@@ -67,6 +67,16 @@ swebot-task-view swebot-user-chat-bubble .expand-button {
     display: none !important;
 }
 
+swebot-critic-card ol, swebot-critic-card ul {
+    padding-left: 20px !important;
+    margin-top: 5px !important;
+    margin-bottom: 5px !important;
+}
+
+swebot-critic-card li {
+    margin-bottom: 4px !important;
+}
+
 swebot-task-view swebot-chat > div:nth-child(2) > div > div {
     display: none !important;
 }
