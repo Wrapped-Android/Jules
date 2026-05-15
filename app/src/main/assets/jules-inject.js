@@ -1,6 +1,4 @@
 (function() {
-    // Note: CSS content will be injected separately from Kotlin for better control
-    
     window.syncTheme = function(isDark) {
         const btn = document.querySelector('.ui-color-mode');
         if (!btn) {
