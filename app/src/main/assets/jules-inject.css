@@ -19,11 +19,13 @@ swebot-custom-dropdown {
     display: none !important;
 }
 
-/* Chat Centering Fix */
-.chat-history .jules-logo-wrapper {
+/* --- Chat Specific (Tasks/Code) --- */
+/* We target selectors that only exist when a chat is active */
+swebot-task-view .chat-history .jules-logo-wrapper {
     display: none !important;
 }
-.chat-content, .chat-history {
+swebot-task-view .chat-content, 
+swebot-task-view .chat-history {
     padding-left: 10px !important;
     padding-right: 10px !important;
     margin-left: 0 !important;
@@ -36,10 +38,17 @@ swebot-custom-dropdown {
     box-sizing: border-box !important;
 }
 
-/* Ensure bubbles themselves are balanced and have breathing room */
-swebot-user-chat-bubble, .user-chat-bubble, swebot-markdown-viewer, .message-container {
+swebot-task-view swebot-user-chat-bubble, 
+swebot-task-view .user-chat-bubble, 
+swebot-task-view swebot-markdown-viewer, 
+swebot-task-view .message-container {
     width: 100% !important;
     max-width: 100% !important;
     margin-left: auto !important;
     margin-right: auto !important;
+}
+
+/* Hide specific chat element inside swebot-task-view */
+swebot-task-view swebot-chat > div:nth-child(2) > div > div {
+    display: none !important;
 }
