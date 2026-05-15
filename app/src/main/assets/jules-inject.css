@@ -1,0 +1,20 @@
+* { -webkit-tap-highlight-color: transparent !important; }
+*:focus { outline: none !important; }
+*:active { outline: none !important; }
+.nav-button.only-icon.updates-button { display: none !important; }
+.panel-button-left-container { display: none !important; }
+.extend-jules-section { display: none !important; }
+.footer { display: none !important; }
+.ui-color-mode { display: none !important; }
+.panel-button-right-container { 
+    display: flex !important; 
+    width: 100% !important; 
+    align-items: center !important; 
+    padding-left: 10px !important;
+}
+swebot-custom-dropdown { 
+    margin-right: auto !important;
+}
+#start-panel swebot-start-panel > div:nth-child(4) > div:nth-child(2) {
+    display: none !important;
+}

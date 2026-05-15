@@ -1,7 +1,9 @@
 package com.cleboost.jules
 
+import android.content.Context
 import android.net.http.SslError
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import android.view.View
 import android.webkit.ConsoleMessage
@@ -133,94 +135,8 @@ fun WebViewScreen(
                         super.onPageFinished(view, url)
                         onCanGoBackChanged(view?.canGoBack() == true)
                         CookieManager.getInstance().flush()
-
-                        view?.evaluateJavascript("""
-                            (function() {
-                                if (!document.getElementById('jules-mobile-styles')) {
-                                    const style = document.createElement('style');
-                                    style.id = 'jules-mobile-styles';
-                                    style.textContent = `
-                                        * { -webkit-tap-highlight-color: transparent !important; }
-                                        *:focus { outline: none !important; }
-                                        *:active { outline: none !important; }
-                                        .nav-button.only-icon.updates-button { display: none !important; }
-                                        .panel-button-left-container { display: none !important; }
-                                        .extend-jules-section { display: none !important; }
-                                        .footer { display: none !important; }
-                                        .ui-color-mode { display: none !important; }
-                                        .panel-button-right-container { 
-                                            display: flex !important; 
-                                            width: 100% !important; 
-                                            align-items: center !important; 
-                                            padding-left: 10px !important;
-                                        }
-                                        swebot-custom-dropdown { 
-                                            margin-right: auto !important;
-                                        }
-                                        #start-panel swebot-start-panel > div:nth-child(4) > div:nth-child(2) {
-                                            display: none !important;
-                                        }
-                                    `;
-                                    document.head.append(style);
-                                }
-
-                                window.syncTheme = function(isDark) {
-                                    const btn = document.querySelector('.ui-color-mode');
-                                    if (!btn) {
-                                        setTimeout(() => window.syncTheme(isDark), 500);
-                                        return;
-                                    }
-                                    const icon = btn.querySelector('mat-icon');
-                                    if (!icon) return;
-                                    const iconText = icon.textContent.trim();
-                                    const isSiteDark = (iconText === 'light_mode'); 
-                                    const isDarkByClass = document.body.classList.contains('dark-theme') || 
-                                                         document.documentElement.classList.contains('dark');
-                                    const actuallyDark = isSiteDark || isDarkByClass;
-                                    
-                                    if (isDark !== actuallyDark) {
-                                        btn.click();
-                                    }
-                                };
-                                
-                                window.syncTheme($isDarkTheme);
-
-                                if (window.JulesSwipeInitialized) return;
-                                window.JulesSwipeInitialized = true;
-                                
-                                let startX = 0;
-                                let startY = 0;
-                                let lastActionTime = 0;
-                                
-                                window.addEventListener('touchstart', function(e) {
-                                    startX = e.touches[0].clientX;
-                                    startY = e.touches[0].clientY;
-                                }, {passive: true, capture: true});
-                                
-                                window.addEventListener('touchend', function(e) {
-                                    let now = Date.now();
-                                    if (now - lastActionTime < 500) return;
-                                    let endX = e.changedTouches[0].clientX;
-                                    let endY = e.changedTouches[0].clientY;
-                                    let dx = endX - startX;
-                                    let dy = Math.abs(endY - startY);
-                                    
-                                    if (Math.abs(dx) > 80 && dy < 100) {
-                                        let panel = document.getElementById('start-panel');
-                                        let btn = document.querySelector('button.start-panel-button.is-left');
-                                        if (!btn) return;
-                                        let isClosed = !panel || panel.classList.contains('closed');
-                                        if (dx > 0 && isClosed) {
-                                            btn.click();
-                                            lastActionTime = now;
-                                        } else if (dx < 0 && !isClosed) {
-                                            btn.click();
-                                            lastActionTime = now;
-                                        }
-                                    }
-                                }, {passive: true, capture: true});
-                            })();
-                        """.trimIndent(), null)
+                        
+                        injectAssets(context, view)
                     }
                     
                     override fun doUpdateVisitedHistory(view: WebView?, url: String?, isReload: Boolean) {
@@ -261,6 +177,37 @@ fun WebViewScreen(
         },
         modifier = modifier
     )
+}
+
+private fun injectAssets(context: Context, webView: WebView?) {
+    try {
+        val css = context.assets.open("jules-inject.css").bufferedReader().use { it.readText() }
+        val js = context.assets.open("jules-inject.js").bufferedReader().use { it.readText() }
+        
+        val encodedCss = Base64.encodeToString(css.toByteArray(), Base64.NO_WRAP)
+        
+        val injectionJs = """
+            (function() {
+                if (!document.getElementById('jules-mobile-styles')) {
+                    const style = document.createElement('style');
+                    style.id = 'jules-mobile-styles';
+                    style.textContent = atob('$encodedCss');
+                    document.head.append(style);
+                }
+                $js
+                if (window.syncTheme) window.syncTheme(${isSystemInDarkThemeStatic(context)});
+            })();
+        """.trimIndent()
+        
+        webView?.evaluateJavascript(injectionJs, null)
+    } catch (e: Exception) {
+        Log.e("Jules", "Error injecting assets", e)
+    }
+}
+
+private fun isSystemInDarkThemeStatic(context: Context): Boolean {
+    return (context.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == 
+            android.content.res.Configuration.UI_MODE_NIGHT_YES
 }
 
 @Preview(showBackground = true)
